@@ -1,9 +1,9 @@
 # (c) Copyright 2019-2023 OLX
-FROM rust:1.66.0-alpine3.17
+FROM rust:1.73.0-alpine3.18
 
-ENV VIPS_VERSION=8.13.3
+ENV VIPS_VERSION=8.14.5
 
-RUN apk add --update --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/v3.17/main \
+RUN apk add --update --no-cache --repository=https://dl-cdn.alpinelinux.org/alpine/v3.18/main \
             build-base \
             pkgconfig \
             clang \
@@ -23,24 +23,25 @@ RUN apk add --update --no-cache --repository=https://dl-cdn.alpinelinux.org/alpi
             libpng-dev \
             librsvg-dev \
             libwebp-dev \
+            meson \
             openssl-dev \
             orc-dev \
             pango-dev \
             tiff-dev
 
-RUN wget https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.gz
+RUN wget https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.xz
 
 RUN mkdir vips
 
-RUN tar xvzf vips-${VIPS_VERSION}.tar.gz -C vips --strip-components 1
+RUN tar -xvf vips-${VIPS_VERSION}.tar.xz -C vips --strip-components 1
 
 WORKDIR /vips
 
-RUN ./configure --enable-debug=no --without-python
-
-RUN make -j10
-
-RUN make install
+RUN meson setup build && \
+    cd build && \
+    meson compile && \
+    meson test && \
+    meson install
 
 RUN ldconfig /etc/ld.so.conf.d
 

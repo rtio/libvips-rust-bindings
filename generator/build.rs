@@ -1217,8 +1217,7 @@ fn main() {
         .impl_debug(true)
         .impl_partialeq(true)
         .derive_debug(true)
-        .derive_eq(true)
-        .rustfmt_bindings(true);
+        .derive_eq(true);
     for flag in flags.into_iter() {
         generator = generator.clang_arg(flag);
     }
